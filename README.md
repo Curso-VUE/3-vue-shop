@@ -3,6 +3,8 @@
 1. [Crear proyecto con Vue UI](#init)
 2. [Instalación y configuración de los plugins](#dependencies)
 3. [Iniciar un módulo con Vuex para manejar los productos de la aplicación](#prodruct-manage)
+4. [Acciones del módulo *products* haciendo petición HTTP con *async* y *await*](#actions)
+5. [Definir la lógica del listado de productos](#product-list)
 
 <hr>
 
@@ -135,5 +137,68 @@ export default new Vuex.Store({
 })
 ~~~
 
+<hr>
 
+<a name="actions"></a>
 
+## 4. Acciones del módulo *products* haciendo petición HTTP con *async* y *await*
+
+Vamos a utilizar las acciones para realizar peticiones asíncronas y actualizar el **store**.
+
+Configuramos la acción en */src/modules/products/actions.js*:
+
+~~~
+export async function fetchProducts({ commit }) {
+  const data = await fetch('/fixtures/products.json');
+  const products = await data.json();
+  commit('products/setProducts', products, { root: true });
+}
+~~~
+
+```En el commit hay que especificar la ruta del mutation que vamos a utilizar, el nuevo valor y { root: true} para indicar que el estado se encuentra en la raiz.```
+
+<hr>
+
+<a name="product-list"></a>
+
+## 5. Definir la lógica del listado de productos
+
+Eliminamos el componente *HelloWorld.vue* así como su importación, declaración y renderizado de *app.vue*. Eliminamos también los estilos, de forma que nos quede el componente limpio.
+
+En generamos un nuevo componente *ProductList*. En él configuramos el mapState y el mapActions para acceder al estado y a las acciones del módulo **products**.
+
+Configuramos el hook **mounted** para obtener los productos una vez el componente se haya cargado.
+
+En el template, visualizamos la cantidad de productos que se han cargado para comprobar que funciona correctamente.
+
+~~~
+<template>
+  <div>{{products.length}}</div>
+</template>
+
+<script>
+import { mapActions, mapMutations, mapState } from 'vuex';
+export default {
+  mounted () {
+    this.fetchProducts()
+  },
+  computed: {
+    ...mapState('products', ['products'])
+  },
+  methods: {
+    ...mapActions('products', ['fetchProducts'])
+  }
+}
+</script>
+~~~
+
+Configuramos la paginación en los datos de *ProductList*:
+
+~~~
+  data() {
+    return {
+      pagination: ['products'],
+      perPage: 3
+    }
+  },
+~~~
