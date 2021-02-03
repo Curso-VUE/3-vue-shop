@@ -5,6 +5,7 @@
 3. [Iniciar un módulo con Vuex para manejar los productos de la aplicación](#prodruct-manage)
 4. [Acciones del módulo *products* haciendo petición HTTP con *async* y *await*](#actions)
 5. [Definir la lógica del listado de productos](#product-list)
+6. [Primera versión del sitado de productos paginados](#pagination)
 
 <hr>
 
@@ -197,8 +198,55 @@ Configuramos la paginación en los datos de *ProductList*:
 ~~~
   data() {
     return {
-      pagination: ['products'],
+      paginate: ['products'],
       perPage: 3
     }
   },
 ~~~
+
+<hr>
+
+<a name="init"></a>
+
+## 6. Primera versión del sitado de productos paginados
+
+Creamos una primera aproximación del template de componente *ProductList*.
+
+Primero establecemos que se visualice un alert cuando no haya datos de productos:
+
+~~~
+<template>
+  <div v-if="products.length">
+    
+  </div>
+  <b-alert v-else show variant="info">No hay productos para mostar</b-alert>
+
+</template>
+~~~
+
+Para la lista de productos paginados utilizamos la etiqueta **paginate** en el **div**:
+
+~~~
+    <paginate 
+      name="products"
+      :list="products"
+      :per="perPage"
+    >
+      <p v-for="product in paginated('products')" :key="product.id">{{product.name}}</p>
+    </paginate>
+~~~
+
+Al mismo nivel que paginate renderizamos los links de las siguientes páginas mediante la etiqueta **paginate-links**:
+
+~~~
+    <paginate-links
+      for="products"
+      :classes="{
+        'ul': 'pagination',
+        'li': 'page-item',
+        'li > a': 'page-link'
+      }"
+    ></paginate-links>
+~~~
+
+Con la configuración de clases podemos añadir una clase a los elementos que decidamos.
