@@ -6,6 +6,7 @@
 4. [Acciones del módulo *products* haciendo petición HTTP con *async* y *await*](#actions)
 5. [Definir la lógica del listado de productos](#product-list)
 6. [Primera versión del sitado de productos paginados](#pagination)
+7. [Componente que representa un producto](#productItem)
 
 <hr>
 
@@ -206,7 +207,7 @@ Configuramos la paginación en los datos de *ProductList*:
 
 <hr>
 
-<a name="init"></a>
+<a name="pagination"></a>
 
 ## 6. Primera versión del sitado de productos paginados
 
@@ -250,3 +251,70 @@ Al mismo nivel que paginate renderizamos los links de las siguientes páginas me
 ~~~
 
 Con la configuración de clases podemos añadir una clase a los elementos que decidamos.
+
+<hr>
+
+<a name="ProductItem"></a>
+
+## 7. Componente que representa un producto
+
+Creamos el template del nuevo componente *ProductItem*:
+
+~~~
+<template>
+  <b-card
+    :title="product.name"
+    :img-src="product.picture"
+    :img-alt="product.name"
+    img-top
+    style="max-width: 30rem;"
+    class="mb-2"
+  >
+    <b-button
+      block
+      variant="warning"
+      @click="$emit('addToCart', product)"
+    >
+      Añadir al carrito
+    </b-button>
+  </b-card>
+</template>
+~~~
+
+Definimos en el script las props que nos llegarán del componente padre (en este caso product):
+
+~~~
+<script>
+export default {
+  props: {
+    product: {
+      type: Object,
+      required: true,
+    }
+  }
+}
+</script>
+~~~
+
+En *ProductList* renderizamos el nuevo componente sustityyendo lo que teníamos dentro de las etiquetas **paginate**:
+
+~~~
+      <b-card-group columns>
+        <product-item
+          v-for="product in paginated('products')" 
+          :key="product.id" 
+          :product="product"
+          @addTOCart="addProductToCart"
+        ></product-item>
+      </b-card-group>
+~~~
+
+Creamos un método para manejar el evento que se genera la hacer click en el botón del componente hijo:
+
+~~~
+  methods: {
+    ...mapActions('products', ['fetchProducts']),
+    addProductToCart (product) {
+      console.log(product)
+    }
+~~~
