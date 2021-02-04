@@ -17,6 +17,7 @@
 
     <paginate-links
       for="products"
+      :limit="10"
       :classes="{
         'ul': 'pagination',
         'li': 'page-item',

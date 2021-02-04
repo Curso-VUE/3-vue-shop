@@ -7,6 +7,7 @@
 5. [Definir la lógica del listado de productos](#product-list)
 6. [Primera versión del sitado de productos paginados](#pagination)
 7. [Componente que representa un producto](#productItem)
+8. [Componente con slots para definir un layout](#slots)
 
 <hr>
 
@@ -33,7 +34,7 @@ Para cargar los plugins en la aplicación es buena práctica crear un directorio
 
 - bootstrap-vue.js
 
-~~~
+~~~javascript
 import Vue from 'vue'
 import { BootstrapVue } from 'bootstrap-vue'
 
@@ -45,7 +46,7 @@ Vue.use(BootstrapVue)
 
 - vue-paginate
 
-~~~
+~~~javascript
 import Vue from 'vue'
 import VuePaginate from 'vue-paginate'
 
@@ -54,14 +55,14 @@ Vue.use(VuePaginate)
 
 Crearemos también en la carpeta *plugins* un *index.js* donde requeriremos los dos ficheros que acabamos de crear.
 
-~~~
+~~~javascript
 require ('./bootstrap-vue');
 require ('./vue-paginate');
 ~~~
 
 Finalmente en *main.js* requerimos el *index.js* de *plugins* después de las importaciones.
 
-~~~
+~~~javascript
 import Vue from 'vue'
 import App from './App.vue'
 import store from './store'
@@ -91,14 +92,14 @@ En este proyecto vamos a trabajar con el **store** mediante módulos, así que d
 
 Dentro de la carpeta *products* creamos un archivo para las actions, otro para los mutations, otro para el state y finalmente un index que importe los anteriores.
 - state.js
-~~~
+~~~javascript
 export default {
   products: []
 }
 ~~~
 
 - mutations.js
-~~~
+~~~javascript
 export function setProducts (state, products) {
   state.products = products;
 }
@@ -107,7 +108,7 @@ export function setProducts (state, products) {
 - actions.js (por ahora vacío)
 
 - index.js
-~~~
+~~~javascript
 import state from './state';
 import * as mutations from './mutations';
 import * as actions from './actions';
@@ -124,7 +125,7 @@ export default {
 
 Finalmente importamos el módulo en el **store**.
 
-~~~
+~~~javascript
 import Vue from 'vue'
 import Vuex from 'vuex'
 
@@ -149,7 +150,7 @@ Vamos a utilizar las acciones para realizar peticiones asíncronas y actualizar 
 
 Configuramos la acción en */src/modules/products/actions.js*:
 
-~~~
+~~~javascript
 export async function fetchProducts({ commit }) {
   const data = await fetch('/fixtures/products.json');
   const products = await data.json();
@@ -173,7 +174,7 @@ Configuramos el hook **mounted** para obtener los productos una vez el component
 
 En el template, visualizamos la cantidad de productos que se han cargado para comprobar que funciona correctamente.
 
-~~~
+~~~html
 <template>
   <div>{{products.length}}</div>
 </template>
@@ -196,13 +197,13 @@ export default {
 
 Configuramos la paginación en los datos de *ProductList*:
 
-~~~
-  data() {
-    return {
-      paginate: ['products'],
-      perPage: 3
-    }
-  },
+~~~javascript
+data() {
+  return {
+    paginate: ['products'],
+    perPage: 3
+  }
+},
 ~~~
 
 <hr>
@@ -215,7 +216,7 @@ Creamos una primera aproximación del template de componente *ProductList*.
 
 Primero establecemos que se visualice un alert cuando no haya datos de productos:
 
-~~~
+~~~html
 <template>
   <div v-if="products.length">
     
@@ -227,30 +228,31 @@ Primero establecemos que se visualice un alert cuando no haya datos de productos
 
 Para la lista de productos paginados utilizamos la etiqueta **paginate** en el **div**:
 
-~~~
-    <paginate 
-      name="products"
-      :list="products"
-      :per="perPage"
-    >
-      <p v-for="product in paginated('products')" :key="product.id">{{product.name}}</p>
-    </paginate>
+~~~html
+<paginate 
+  name="products"
+  :list="products"
+  :per="perPage"
+>
+  <p v-for="product in paginated('products')" :key="product.id">{{product.name}}</p>
+</paginate>
 ~~~
 
 Al mismo nivel que paginate renderizamos los links de las siguientes páginas mediante la etiqueta **paginate-links**:
 
-~~~
-    <paginate-links
-      for="products"
-      :classes="{
-        'ul': 'pagination',
-        'li': 'page-item',
-        'li > a': 'page-link'
-      }"
-    ></paginate-links>
+~~~html
+<paginate-links
+  for="products"
+  :limit="10"
+  :classes="{
+    'ul': 'pagination',
+    'li': 'page-item',
+    'li > a': 'page-link'
+  }"
+></paginate-links>
 ~~~
 
-Con la configuración de clases podemos añadir una clase a los elementos que decidamos.
+El límite indica la cantidad máxima de paginate-links que se muestran. Con la configuración de clases podemos añadir una clase a los elementos que decidamos.
 
 <hr>
 
@@ -260,7 +262,7 @@ Con la configuración de clases podemos añadir una clase a los elementos que de
 
 Creamos el template del nuevo componente *ProductItem*:
 
-~~~
+~~~html
 <template>
   <b-card
     :title="product.name"
@@ -283,7 +285,7 @@ Creamos el template del nuevo componente *ProductItem*:
 
 Definimos en el script las props que nos llegarán del componente padre (en este caso product):
 
-~~~
+~~~html
 <script>
 export default {
   props: {
@@ -298,23 +300,85 @@ export default {
 
 En *ProductList* renderizamos el nuevo componente sustityyendo lo que teníamos dentro de las etiquetas **paginate**:
 
-~~~
-      <b-card-group columns>
-        <product-item
-          v-for="product in paginated('products')" 
-          :key="product.id" 
-          :product="product"
-          @addTOCart="addProductToCart"
-        ></product-item>
-      </b-card-group>
+~~~html
+<b-card-group columns>
+  <product-item
+    v-for="product in paginated('products')" 
+    :key="product.id" 
+    :product="product"
+    @addTOCart="addProductToCart"
+  ></product-item>
+</b-card-group>
 ~~~
 
 Creamos un método para manejar el evento que se genera la hacer click en el botón del componente hijo:
 
+~~~javascript
+methods: {
+  ...mapActions('products', ['fetchProducts']),
+  addProductToCart (product) {
+    console.log(product)
+  }
+}
 ~~~
-  methods: {
-    ...mapActions('products', ['fetchProducts']),
-    addProductToCart (product) {
-      console.log(product)
-    }
+
+<hr>
+
+<a name="slots"></a>
+
+## 8. Componente con slots para definir un layout
+
+Vamos a utilizar slots para definir un layout en donde mostrar los productos y el carrito.
+
+Generamos un nuevo componente ShopLayout en el que renderizaremos a 9 columnas la lista de productos y a 3 columnas el carrito:
+
+~~~html
+<template>
+  <b-container>
+    <b-row>
+      <b-col cols="9">
+        <slot name="product-list"></slot>
+      </b-col>
+      <b-col cols="3">
+        <slot name="cart"></slot>
+      </b-col>
+    <b-row>
+  </b-container>
+</template>
+~~~
+
+Utilizamos el nuevo componente en *app.vue*:
+
+- En el template:
+
+~~~html
+<template>
+  <div id="app">
+    <shop-layout>
+      <template slot="product-list">
+        <product-list></product-list>
+      </template>
+      <template slot="cart">
+        Carrito
+      </template>
+    </shop-layout>
+  </div>
+</template>
+~~~
+
+- En el script:
+
+~~~html
+<script>
+import ProductList from "./components/ProductList.vue";
+import ShopLayout from "./components/ShopLayout.vue";
+
+export default {
+  name: "App",
+  components: {
+    ShopLayout,
+    ProductList
+  },
+};
+</script>
 ~~~
