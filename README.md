@@ -8,6 +8,7 @@
 6. [Primera versión del sitado de productos paginados](#pagination)
 7. [Componente que representa un producto](#productItem)
 8. [Componente con slots para definir un layout](#slots)
+8. [Módulo del carrito de compras](#cart)
 
 <hr>
 
@@ -381,4 +382,67 @@ export default {
   },
 };
 </script>
+~~~
+
+<hr>
+
+<a name="cart"></a>
+
+## 9. Módulo del carrito
+
+Creamos una nuevo módulo *cart* que tendrá **state**, **mutations** y **getters**.
+
+- *index.js*: Al igual que en el módulo *products* exportamos los elementos del módulo:
+
+~~~js
+import state from './state';
+import * as mutations from './mutations';
+import * as getters from './getters';
+
+const namespaced = true;
+
+export default {
+  namespaced,
+  state,
+  mutations,
+  getters
+}
+~~~
+
+- *state.js*: El estado del módulo contentrá el carrito de la compra
+~~~js
+export default {
+  cart: []
+}
+~~~
+
+- *mutations.js*: Exsportamos una funciones para añadir un producto a la lista y otra para eliminar un producto.
+
+~~~js
+import { find, filter } from 'lodash';
+
+export function addProduct (state, product) {
+  const productInCart = find(state.cart, { id: product.id });
+  if (!productInCart) {
+    const copy = Object.assign({}, product);
+    copy.qty = 1;
+    state.cart.push(copy);
+  } else {
+    productInCart.qty += 1;
+  }
+}
+
+export function removeProductFormCart(state, product) {
+  state.cart = filter(state.cart, ({id}) => id !== product.id);
+}
+~~~
+
+- *getters.js*: Los **getters** permiten obtener los datos del state filtrados o calculados. 
+
+~~~js
+export function totalCost(state) {
+  return state.cart.reduce((acc, product) => {
+    return acc + parseFloat(product.price) * product.qty
+  }, 0);
+}
 ~~~
