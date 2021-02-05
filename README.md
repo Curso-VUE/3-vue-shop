@@ -8,8 +8,9 @@
 6. [Primera versión del sitado de productos paginados](#pagination)
 7. [Componente que representa un producto](#productItem)
 8. [Componente con slots para definir un layout](#slots)
-9. [Módulo del carrito de compras](#cart)
+9. [Módulo del carrito de compras](#cart-module)
 10. [Añadir productos al carrito desde el listado de productos](#add-product)
+11. [Componente carrito](#cart-component)
 
 <hr>
 
@@ -387,7 +388,7 @@ export default {
 
 <hr>
 
-<a name="cart"></a>
+<a name="cart-module"></a>
 
 ## 9. Módulo del carrito
 
@@ -433,7 +434,7 @@ export function addProduct (state, product) {
   }
 }
 
-export function removeProductFormCart(state, product) {
+export function removeProductFromCart(state, product) {
   state.cart = filter(state.cart, ({id}) => id !== product.id);
 }
 ~~~
@@ -467,3 +468,84 @@ Vamos a definir el método **addProductToCart** del componente *ProductList* map
   }
 ~~~
 
+<hr>
+
+<a name="cart-component"></a>
+
+## 11. Componente carrito
+
+Generamos el componente *cart* y en el script definimos los siguientes elementos:
+
+- ***data***: array con los nombres de los campos de cada producto que utilizaremos en una tabla de bootstrap.
+- ***computed***: **state** y **getters** de *cart*
+- ***methods***: **mutations** de *cart*.
+
+~~~html
+<script>
+import { mapGetters, mapMutations, mapState } from 'vuex';
+
+export default {
+  data() {
+    return {
+      fields: ['name', 'qty', 'price', 'actions']
+    }
+  },
+  computed: {
+    ...mapState('cart', ['cart']),
+    ...mapGetters('cart', ['totalCost'])
+  },
+  methods: {
+    ...mapMutations('cart', ['removeProductFromCart'])
+  }
+}
+</script>
+~~~
+
+El template quedaría de la siguiente forma:
+
+~~~html
+<template>
+  <div v-if="cart.length">
+    <b-table striped hover :items="cart" :fields="fields">
+      <template v-slot:cell(actions)="cell">
+        <b-button
+          size="sm"
+          variant="danger"
+          @click.stop="removeProductFromCart(cell.item)"
+        >
+          Eliminar
+        </b-button>
+      </template>
+    </b-table>
+    <b-alert show variant="success" class="text-center">
+      Coste total: {{ totalCost }}€
+    </b-alert>
+  </div>
+  <b-alert v-else show variant="info">
+    No hay productos en el carrito
+  </b-alert>
+</template>
+~~~
+
+Importamos el componente *cart* al componente principal, *app*:
+
+~~~html
+...
+  <template slot="cart">
+    <cart></cart>
+  </template>
+...
+~~~
+
+~~~js
+...
+import Cart from "./components/Cart.vue";
+
+  components: {
+    ShopLayout,
+    ProductList,
+    Cart
+  },
+};
+...
+~~~

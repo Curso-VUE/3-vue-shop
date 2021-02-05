@@ -11,6 +11,6 @@ export function addProduct (state, product) {
   }
 }
 
-export function removeProductFormCart(state, product) {
+export function removeProductFromCart(state, product) {
   state.cart = filter(state.cart, ({id}) => id !== product.id);
 }

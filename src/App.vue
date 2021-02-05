@@ -5,7 +5,7 @@
         <product-list></product-list>
       </template>
       <template slot="cart">
-        Carrito
+        <cart></cart>
       </template>
     </shop-layout>
   </div>
@@ -14,12 +14,14 @@
 <script>
 import ProductList from "./components/ProductList.vue";
 import ShopLayout from "./components/ShopLayout.vue";
+import Cart from "./components/Cart.vue";
 
 export default {
   name: "App",
   components: {
     ShopLayout,
-    ProductList
+    ProductList,
+    Cart
   },
 };
 </script>

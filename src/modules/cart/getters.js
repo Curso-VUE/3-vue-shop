@@ -1,5 +1,5 @@
 export function totalCost(state) {
   return state.cart.reduce((acc, product) => {
-    return acc + parseFloat(product.price) * product.qty
+    return parseFloat(acc + parseFloat(product.price) * product.qty).toFixed(2)
   }, 0);
 }
