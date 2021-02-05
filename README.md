@@ -8,7 +8,8 @@
 6. [Primera versión del sitado de productos paginados](#pagination)
 7. [Componente que representa un producto](#productItem)
 8. [Componente con slots para definir un layout](#slots)
-8. [Módulo del carrito de compras](#cart)
+9. [Módulo del carrito de compras](#cart)
+10. [Añadir productos al carrito desde el listado de productos](#add-product)
 
 <hr>
 
@@ -446,3 +447,23 @@ export function totalCost(state) {
   }, 0);
 }
 ~~~
+
+
+<hr>
+
+<a name="add-product"></a>
+
+## 10. Añadir productos al carrito desde el listado de productos
+
+Vamos a definir el método **addProductToCart** del componente *ProductList* mapeando la mutación del módulo *cart*:
+
+~~~js
+  methods: {
+    ...mapActions('products', ['fetchProducts']),
+    ...mapMutations('cart', ['addProduct']),
+    addProductToCart (product) {
+      this.addProduct(product);
+    }
+  }
+~~~
+

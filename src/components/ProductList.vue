@@ -10,7 +10,7 @@
           v-for="product in paginated('products')" 
           :key="product.id" 
           :product="product"
-          @addTOCart="addProductToCart"
+          @addToCart="addProductToCart"
         ></product-item>
       </b-card-group>
     </paginate>
@@ -50,8 +50,9 @@ export default {
   },
   methods: {
     ...mapActions('products', ['fetchProducts']),
+    ...mapMutations('cart', ['addProduct']),
     addProductToCart (product) {
-      console.log(product)
+      this.addProduct(product);
     }
   }
 }
