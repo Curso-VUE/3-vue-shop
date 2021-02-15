@@ -603,3 +603,15 @@ const vuexLocal = new VuexPersistence({
 ## 13. Persistir Vuex en IndexedDB, ideal para PWAs
 
 Vamos a utilizar el plugin [localForage](https://github.com/localForage/localForage)
+
+Únicamente debemos modificar la configuración del storage en VuexPersistance...
+
+~~~js
+import localForage from 'localforage'
+
+const vuexLocal = new VuexPersistence({
+  storage: localForage,
+  asyncStorage: true,
+  modules: ['cart']
+})
+~~~
