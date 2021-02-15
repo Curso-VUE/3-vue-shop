@@ -11,6 +11,8 @@
 9. [Módulo del carrito de compras](#cart-module)
 10. [Añadir productos al carrito desde el listado de productos](#add-product)
 11. [Componente carrito](#cart-component)
+12. [Persistir Vuex en LocalStorage](#local-storage)
+13. [Persistir Vuex en IndexedDB, ideal para PWAs](#indexedDB)
 
 <hr>
 
@@ -549,3 +551,55 @@ import Cart from "./components/Cart.vue";
 };
 ...
 ~~~
+
+
+<hr>
+
+<a name="local-storage"></a>
+
+## 12. Persistir Vuex en LocalStorage
+
+Vamos a instalar la dependencia [vuex-persist](https://github.com/championswimmer/vuex-persist) en el proyecto.
+
+Realizamos la modificaciones necesarias en el **store**:
+
+~~~js
+import Vue from 'vue'
+import Vuex from 'vuex'
+import VuexPersistence from 'vuex-persist'
+
+import products from '../modules/products';
+import cart from '../modules/cart';
+
+Vue.use(Vuex)
+
+const vuexLocal = new VuexPersistence({
+  storage: window.localStorage
+})
+
+export default new Vuex.Store({
+  modules: {
+    products,
+    cart
+  },
+  plugins: [vuexLocal.plugin]
+})
+~~~
+
+De esta forma se guardarán en LocalStorage el estado de todos los módulos de nuestra aplicación. Si decidimosalmacenar el estado de sólo algunos módulos, debemos indicarlo en la configuración del plugin:
+
+~~~js
+const vuexLocal = new VuexPersistence({
+  storage: window.localStorage,
+  modules: ['cart']
+})
+~~~
+
+
+<hr>
+
+<a name="indexedDB"></a>
+
+## 13. Persistir Vuex en IndexedDB, ideal para PWAs
+
+Vamos a utilizar el plugin [localForage](https://github.com/localForage/localForage)
